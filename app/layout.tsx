@@ -3,8 +3,8 @@ import "@rainbow-me/rainbowkit/styles.css";
 import { Providers } from "./providers";
 
 export const metadata = {
-  title: "DAO",
-  description: "DAO for NFT holders",
+  title: "SNOOP",
+  description: "THE SNOOP NFT COLLECTION",
 };
 
 export default function RootLayout({
