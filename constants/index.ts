@@ -1,4 +1,4 @@
-export const snoopNFTAddress = "0x33017A80c991e707458e0163dAfC9d5B92123e4B" as string;
+export const snoopNFTAddress = "0x33017A80c991e707458e0163dAfC9d5B92123e4B" as `0x${string}`;
 
 export const snoopNFTABI = [
   {

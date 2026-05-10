@@ -20,7 +20,7 @@ const NFT_IMAGES = [
   "/5.png",
 ];
 
-export default function Home(): JSX.Element | null {
+export default function Home(): React.JSX.Element | null {
   const { isConnected } = useAccount();
   const [isMounted, setIsMounted]   = useState<boolean>(false);
   const [tokenId, setTokenId]       = useState<number>(1);
@@ -135,7 +135,7 @@ export default function Home(): JSX.Element | null {
   // ══════════════════════════════════════════════
   if (!isConnected) return (
     <div
-      className="flex flex-col justify-center items-center min-h-screen relative overflow-hidden px-4 sm:px-6 text-center"
+      className="flex flex-col justify-center items-center min-h-screen relative overflow-hidden px-4 sm:px-6 lg:px-10"
       style={{ background: "#080808", fontFamily: "'Syne', sans-serif" }}
     >
       <div className="absolute inset-0 opacity-40 pointer-events-none" style={{
@@ -159,10 +159,10 @@ export default function Home(): JSX.Element | null {
 
       <div className="relative z-10 text-center mb-14">
         <p className="tracking-[0.5em] text-xs mb-5" style={{ color: "#808000" }}>EXCLUSIVE COLLECTION · 2026</p>
-        <h1 className="font-light tracking-tight text-[clamp(3rem,9vw,5rem)] sm:text-[clamp(4rem,10vw,6rem)]" style={{ fontFamily: "'Cormorant Garamond', serif", color: "#f5f0e8", lineHeight: 1 }}>
+        <h1 className="font-light tracking-tight" style={{ fontFamily: "'Cormorant Garamond', serif", color: "#f5f0e8", lineHeight: 1, fontSize: "clamp(4rem,10vw,6rem)" }}>
           Snoop<span className="font-semibold italic" style={{ color: "#808000" }}>NFT</span>
         </h1>
-        <div className="mt-5 flex items-center justify-center gap-4">
+          <div className="mt-5 flex flex-col sm:flex-row items-center justify-center gap-4">
           <div className="h-px w-20" style={{ background: "#808000", opacity: 0.4 }} />
           <p className="text-xs tracking-[0.35em]" style={{ color: "#555" }}>10 UNIQUE PIECES · 0.01 ETH</p>
           <div className="h-px w-20" style={{ background: "#808000", opacity: 0.4 }} />
@@ -170,11 +170,11 @@ export default function Home(): JSX.Element | null {
       </div>
 
       <ConnectButton.Custom>
-        {({ openConnectModal, isConnecting, mounted }) => (
+        {({ openConnectModal, mounted }) => (
           <button
             onClick={openConnectModal}
-            disabled={isConnecting || !mounted}
-            className="relative z-10"
+            disabled={!mounted}
+            className="relative z-10 px-8 py-4 text-xs sm:px-12 sm:text-sm"
             style={{
               background: "transparent", border: "1px solid #808000",
               color: "#f5f0e8", padding: "16px 52px", fontSize: "11px",
@@ -184,7 +184,7 @@ export default function Home(): JSX.Element | null {
             onMouseEnter={e => { e.currentTarget.style.background = "#808000"; e.currentTarget.style.color = "#080808"; }}
             onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#f5f0e8"; }}
           >
-            {isConnecting ? "CONNECTING..." : "CONNECT WALLET"}
+            CONNECT WALLET
           </button>
         )}
       </ConnectButton.Custom>
@@ -213,8 +213,8 @@ export default function Home(): JSX.Element | null {
       <div className="relative z-10 h-px w-full" style={{ background: "linear-gradient(90deg, transparent, #808000, transparent)" }} />
 
       {/* HEADER */}
-      <header className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 sm:px-6 lg:px-10 py-5" style={{ borderBottom: "1px solid #161616" }}>
-        <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 24, color: "#f5f0e8" }}>
+      <header className="relative z-10 flex flex-col sm:flex-row items-center sm:justify-between px-4 sm:px-6 lg:px-10 py-5 gap-4 sm:gap-0" style={{ borderBottom: "1px solid #161616" }}>
+        <span className="text-2xl sm:text-[28px]" style={{ fontFamily: "'Cormorant Garamond', serif", color: "#f5f0e8" }}>
           Snoop<span className="italic font-semibold" style={{ color: "#808000" }}>NFT</span>
         </span>
         <ConnectButton.Custom>
@@ -229,7 +229,7 @@ export default function Home(): JSX.Element | null {
                 }}
                   onMouseEnter={e => { e.currentTarget.style.borderColor = "#808000"; e.currentTarget.style.color = "#f5f0e8"; }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor = "#222"; e.currentTarget.style.color = "#666"; }}
-                >◆ {chain.name.toUpperCase()}</button>
+                >◆ {chain?.name?.toUpperCase() || "UNKNOWN"}</button>
                 <button onClick={openAccountModal} style={{
                   background: "#808000", border: "1px solid #808000", padding: "7px 14px",
                   cursor: "pointer", color: "#080808", fontFamily: "'Syne', sans-serif",
@@ -244,23 +244,23 @@ export default function Home(): JSX.Element | null {
       </header>
 
       {/* MAIN */}
-      <main className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-16">
+      <main className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-12 sm:py-16">
 
         <div className="mb-14">
           <p className="text-xs tracking-[0.45em] mb-3" style={{ color: "#808000" }}>EXCLUSIVE DROP · ETH</p>
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-light leading-none" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Claim Your</h2>
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-semibold italic leading-none" style={{ fontFamily: "'Cormorant Garamond', serif", color: "#808000" }}>Snoop NFT</h2>
-          <div className="mt-5 h-px w-20" style={{ background: "#808000" }} />
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-light leading-tight" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Claim Your</h2>
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-semibold italic leading-tight" style={{ fontFamily: "'Cormorant Garamond', serif", color: "#808000" }}>Snoop NFT</h2>
+          <div className="mt-5 h-px w-16 sm:w-20" style={{ background: "#808000" }} />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-start">
 
           {/* LEFT — Slideshow + Mint */}
           <div className="space-y-6">
 
             {/* Slideshow */}
-            <div style={{ border: "1px solid #1e1e1e", position: "relative", overflow: "hidden" }}>
-              <div style={{ position: "relative", width: "100%", paddingBottom: "100%", background: "#0d0d0d" }}>
+            <div className="overflow-hidden rounded-[1.75rem]" style={{ border: "1px solid #1e1e1e", position: "relative" }}>
+              <div className="relative w-full aspect-square" style={{ background: "#0d0d0d" }}>
                 <img
                   key={slideIndex}
                   src={NFT_IMAGES[slideIndex]}
@@ -291,7 +291,7 @@ export default function Home(): JSX.Element | null {
                 }}>›</button>
               </div>
               {/* Dots */}
-              <div className="flex justify-center gap-2 py-4" style={{ borderTop: "1px solid #1a1a1a" }}>
+              <div className="flex flex-wrap justify-center gap-2 py-4" style={{ borderTop: "1px solid #1a1a1a" }}>
                 {NFT_IMAGES.map((_, i) => (
                   <button key={i} onClick={() => setSlideIndex(i)} style={{
                     width: i === slideIndex ? 24 : 6, height: 6, border: "none", cursor: "pointer",
@@ -303,8 +303,8 @@ export default function Home(): JSX.Element | null {
             </div>
 
             {/* Mint progress */}
-            <div style={{ border: "1px solid #1e1e1e", padding: "20px 24px" }}>
-              <div className="flex justify-between items-center mb-3">
+            <div className="p-5 sm:p-6" style={{ border: "1px solid #1e1e1e" }}>
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-3">
                 <span className="text-xs tracking-[0.25em]" style={{ color: "#555" }}>TOTAL MINTED</span>
                 <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, color: "#f5f0e8" }}>
                   {mintedCount}<span style={{ color: "#333", fontSize: 16 }}>/10</span>
@@ -317,7 +317,7 @@ export default function Home(): JSX.Element | null {
 
             {/* Mint CTA */}
             {nftAvailable ? (
-              <button onClick={handleNFTmint} disabled={isLoading} className="w-full py-4 text-xs tracking-[0.35em]"
+              <button onClick={handleNFTmint} disabled={isLoading} className="w-full py-4 text-xs sm:text-sm tracking-[0.35em]"
                 style={{
                   background: isLoading ? "#111" : "#808000",
                   border: "1px solid #808000",
@@ -430,7 +430,7 @@ export default function Home(): JSX.Element | null {
       </main>
 
       {/* FOOTER */}
-      <footer className="relative z-10 mt-24 px-4 sm:px-6 lg:px-10 py-6 flex flex-col gap-3 sm:flex-row justify-between" style={{ borderTop: "1px solid #141414" }}>
+      <footer className="relative z-10 mt-24 px-4 sm:px-6 lg:px-10 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0" style={{ borderTop: "1px solid #141414" }}>
         <p className="text-xs tracking-widest" style={{ color: "#2a2a2a", fontFamily: "'Syne', sans-serif" }}>SNOOPNFT © 2025</p>
         <p className="text-xs tracking-widest" style={{ color: "#2a2a2a", fontFamily: "'Syne', sans-serif" }}>POWERED BY ETHEREUM</p>
       </footer>
