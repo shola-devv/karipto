@@ -1,6 +1,6 @@
-import { deriveAccountForIndex } from "./hdWallet";
-import { getWalletClientFor, getPublicClient } from "./viemClients";
-import { erc20Abi } from "./erc20";
+import { deriveAccountForIndex } from "./wallet/hdWallet";
+import { getWalletClientFor, getPublicClient } from "./wallet/viemClients";
+import { erc20Abi } from "./wallet/erc20";
 import { env } from "../env";
 
 const TREASURY_INDEX = 0;
