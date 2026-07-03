@@ -1,22 +1,49 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #0b0e14;
+  --color-surface: #12161f;
+  --color-surface2: #181d28;
+  --color-line: #232937;
+  --color-text: #e8ecf3;
+  --color-muted: #7c879b;
+  --color-accent: #3ecf8e;
+  --color-accentDim: #28a874;
+  --color-warn: #f0b429;
+  --color-danger: #f0554a;
+}
+
+:root {
+  font-family: var(--font-display), var(--font-body), sans-serif;
+}
 
 html {
   color-scheme: dark;
 }
 
 body {
+  font-family: var(--font-display), var(--font-body), sans-serif;
   background-color: #0b0e14;
   background-image:
     radial-gradient(ellipse 80% 50% at 50% -20%, rgba(62, 207, 142, 0.08), transparent);
+}
+
+.font-display {
+  font-family: var(--font-display), var(--font-body), sans-serif;
+}
+
+.font-body {
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+.font-mono {
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
 ::selection {
   background: rgba(62, 207, 142, 0.35);
 }
 
-/* subtle scrollbar to match the ledger aesthetic */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: #12161f; }
 ::-webkit-scrollbar-thumb { background: #232937; border-radius: 8px; }
@@ -27,3 +54,7 @@ body {
   50% { opacity: 0.35; }
 }
 .pulse-dot { animation: pulse-dot 1.6s ease-in-out infinite; }
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

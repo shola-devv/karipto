@@ -11,11 +11,13 @@ export class WithdrawalError extends Error {
 
 export async function performWithdrawal(params: {
   userId: string;
+  chainId: number;
   asset: "ETH" | "USDT";
   amount: bigint;
   toAddress: string;
 }) {
   const { userId, asset, amount, toAddress } = params;
+  const chainId = (params as any).chainId || 1;
 
   if (!isAddress(toAddress)) {
     throw new WithdrawalError("Invalid destination address", "invalid_address");
@@ -25,22 +27,29 @@ export async function performWithdrawal(params: {
   }
 
   await dbConnect();
-  const field = asset === "ETH" ? "ethBalanceWei" : "usdtBalanceUnits";
   const amountStr = amount.toString();
 
-  // Pessimistically reserve funds first: atomic + numeric comparison via
-  // $expr/$toDecimal (balances are stored as decimal strings, so a naive
-  // string $gte would compare lexicographically and be wrong).
+  // Reserve funds in the balances array for the requested chain/asset.
   const reserved = await User.findOneAndUpdate(
     {
       _id: userId,
-      $expr: { $gte: [{ $toDecimal: `$${field}` }, { $toDecimal: amountStr }] },
+      balances: { $elemMatch: { chainId, asset, amount: { $gte: amountStr } } },
     },
     [
       {
         $set: {
-          [field]: {
-            $toString: { $subtract: [{ $toDecimal: `$${field}` }, { $toDecimal: amountStr }] },
+          balances: {
+            $map: {
+              input: "$balances",
+              as: "b",
+              in: {
+                $cond: [
+                  { $and: [{ $eq: ["$$b.chainId", chainId] }, { $eq: ["$$b.asset", asset] }] },
+                  { $mergeObjects: ["$$b", { amount: { $toString: { $subtract: [{ $toDecimal: "$$b.amount" }, { $toDecimal: amountStr }] } } }] },
+                  "$$b",
+                ],
+              },
+            },
           },
         },
       },
@@ -54,14 +63,29 @@ export async function performWithdrawal(params: {
   try {
     const to = getAddress(toAddress);
     const txHash =
-      asset === "ETH" ? await sendEthFromTreasury(to, amount) : await sendUsdtFromTreasury(to, amount);
+      asset === "ETH" ? await sendEthFromTreasury(chainId, to, amount) : await sendUsdtFromTreasury(chainId, to, amount);
     return { txHash, asset, amount: amountStr, toAddress: to };
   } catch (err) {
     // Refund: the on-chain send failed after we'd already reserved the balance.
     await User.findOneAndUpdate({ _id: userId }, [
       {
         $set: {
-          [field]: { $toString: { $add: [{ $toDecimal: `$${field}` }, { $toDecimal: amountStr }] } },
+          balances: {
+            $map: {
+              input: "$balances",
+              as: "b",
+              in: {
+                $cond: [
+                  { $and: [{ $eq: ["$$b.chainId", chainId] }, { $eq: ["$$b.asset", asset] }] },
+                  { $mergeObjects: [
+                    "$$b",
+                    { amount: { $toString: { $add: [{ $toDecimal: "$$b.amount" }, { $toDecimal: amountStr }] } } },
+                  ] },
+                  "$$b",
+                ],
+              },
+            },
+          },
         },
       },
     ]);

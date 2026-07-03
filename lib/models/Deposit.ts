@@ -3,6 +3,7 @@ import mongoose, { Schema, models, model } from "mongoose";
 export interface IDeposit {
   _id: mongoose.Types.ObjectId;
   userId: mongoose.Types.ObjectId;
+  chainId: number;
   asset: "ETH" | "USDT";
   txHash: string;
   logIndex?: number; // present for ERC20 Transfer events, absent for native ETH
@@ -17,6 +18,7 @@ export interface IDeposit {
 }
 
 const DepositSchema = new Schema<IDeposit>({
+  chainId: { type: Number, required: true, index: true },
   userId: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
   asset: { type: String, enum: ["ETH", "USDT"], required: true },
   txHash: { type: String, required: true, lowercase: true },
@@ -31,8 +33,8 @@ const DepositSchema = new Schema<IDeposit>({
   creditedAt: { type: Date },
 });
 
-// A given (txHash, logIndex, asset) can only ever be recorded once.
-// This is what makes deposit crediting idempotent / safe to re-scan.
-DepositSchema.index({ txHash: 1, asset: 1, logIndex: 1 }, { unique: true });
+// A given (chainId, txHash, logIndex, asset) can only ever be recorded once.
+// This makes deposit crediting idempotent / safe to re-scan per chain.
+DepositSchema.index({ chainId: 1, txHash: 1, asset: 1, logIndex: 1 }, { unique: true });
 
 export default models.Deposit || model<IDeposit>("Deposit", DepositSchema);

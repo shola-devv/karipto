@@ -6,17 +6,21 @@
     "dev": "next dev --webpack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "scan": "tsx scripts/runScanner.ts",
+    "mcp": "tsx mcp-server/index.ts"
   },
   "dependencies": {
-    "@rainbow-me/rainbowkit": "^2.2.10",
-    "@tanstack/react-query": "^5.100.8",
-    "next": "16.2.4",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "viem": "^2.48.8",
-    "wagmi": "^2.19.5"
-  },
+  "@modelcontextprotocol/sdk": "^1.4.0",
+  "dotenv": "^16.4.5",
+  "mongoose": "^8.5.0",
+  "next": "16.2.4",
+  "qrcode.react": "^3.1.0",
+  "react": "19.2.4",
+  "react-dom": "19.2.4",
+  "viem": "^2.48.8",
+  "zod": "^3.23.8"
+},
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
@@ -25,6 +29,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
     "tailwindcss": "^4",
+    "tsx": "^4.16.0",
     "typescript": "^5"
   }
 }

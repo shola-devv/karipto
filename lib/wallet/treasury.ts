@@ -1,29 +1,26 @@
-import { createPublicClient, createWalletClient, http } from "viem";
-import { mainnet } from "viem/chains";
-import type { HDAccount } from "viem/accounts";
-import { env } from "../env";
+import { erc20Abi } from "./erc20";
+import { deriveAccountForIndex } from "./hdWallet";
+import { getWalletClientFor } from "./viemClients";
+import { getChainById, CHAINS } from "@/lib/chains";
 
-let _publicClient: ReturnType<typeof createPublicClient> | null = null;
-
-export function getPublicClient() {
-  if (!_publicClient) {
-    _publicClient = createPublicClient({
-      chain: mainnet,
-      transport: http(env.rpcHttp()),
-    });
-  }
-  return _publicClient;
+export function getTreasuryAccount() {
+  return deriveAccountForIndex(0);
 }
 
-/**
- * Wallet client bound to a specific derived account. Created on-demand
- * (e.g. when sweeping funds or processing a withdrawal) and not cached
- * beyond the scope of that operation.
- */
-export function getWalletClientFor(account: HDAccount) {
-  return createWalletClient({
-    account,
-    chain: mainnet,
-    transport: http(env.rpcHttp()),
+export async function sendEthFromTreasury(chainId: number, to: `0x${string}`, amountWei: bigint) {
+  const chain = getChainById(chainId) || CHAINS[0];
+  const wallet = getWalletClientFor(getTreasuryAccount(), chain.chainId);
+  return wallet.sendTransaction({ chain: chain.viemChain, to, value: amountWei });
+}
+
+export async function sendUsdtFromTreasury(chainId: number, to: `0x${string}`, amountUnits: bigint) {
+  const chain = getChainById(chainId) || CHAINS[0];
+  const wallet = getWalletClientFor(getTreasuryAccount(), chain.chainId);
+  return wallet.writeContract({
+    chain: chain.viemChain,
+    address: (chain.usdtAddress as `0x${string}`) || process.env.USDT_CONTRACT_ADDRESS,
+    abi: erc20Abi,
+    functionName: "transfer",
+    args: [to, amountUnits],
   });
 }

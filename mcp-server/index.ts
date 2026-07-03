@@ -155,12 +155,13 @@ server.registerTool(
       "6-decimal units for USDT).",
     inputSchema: {
       userId: z.string(),
+      chainId: z.number().int().optional(),
       asset: z.enum(["ETH", "USDT"]),
       amount: z.string().describe("Amount in smallest unit, as a string (wei or USDT 6-decimal units)"),
       toAddress: z.string().describe("Destination Ethereum address"),
     },
   },
-  async ({ userId, asset, amount, toAddress }) => {
+  async ({ userId, chainId, asset, amount, toAddress }) => {
     let amountBig: bigint;
     try {
       amountBig = BigInt(amount);
@@ -187,7 +188,8 @@ server.registerTool(
     }
 
     try {
-      const result = await performWithdrawal({ userId, asset, amount: amountBig, toAddress });
+      const cid = (typeof chainId === "number" ? chainId : 1);
+      const result = await performWithdrawal({ userId, chainId: cid, asset, amount: amountBig, toAddress });
       return textResult(result);
     } catch (err) {
       if (err instanceof WithdrawalError) return textResult({ error: err.message }, true);
@@ -213,6 +215,18 @@ async function main() {
   }
 }
 
+function parseJsonBody(body: string) {
+  const trimmed = body.trim();
+  if (!trimmed) return undefined;
+
+  try {
+    return JSON.parse(trimmed);
+  } catch (error) {
+    console.error("[mcp] invalid JSON body", error);
+    return undefined;
+  }
+}
+
 async function startHttp() {
   const { StreamableHTTPServerTransport } = await import(
     "@modelcontextprotocol/sdk/server/streamableHttp.js"
@@ -229,10 +243,18 @@ async function startHttp() {
       res.writeHead(401).end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
+
     let body = "";
-    req.on("data", (chunk) => (body += chunk));
+    req.on("data", (chunk) => {
+      body += chunk.toString();
+    });
     req.on("end", async () => {
-      const parsed = body ? JSON.parse(body) : undefined;
+      const parsed = parseJsonBody(body);
+      if (body.trim() && parsed === undefined) {
+        res.writeHead(400).end(JSON.stringify({ error: "Invalid JSON body" }));
+        return;
+      }
+
       await transport.handleRequest(req, res, parsed);
     });
   });

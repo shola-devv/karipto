@@ -1,37 +1,46 @@
-import { deriveAccountForIndex } from "./wallet/hdWallet";
-import { getWalletClientFor, getPublicClient } from "./wallet/viemClients";
-import { erc20Abi } from "./wallet/erc20";
-import { env } from "../env";
-
-const TREASURY_INDEX = 0;
-
-export function getTreasuryAccount() {
-  return deriveAccountForIndex(TREASURY_INDEX);
+function getEnvValue(name: string, required = true): string {
+  const value = process.env[name];
+  if (!value && required) {
+    throw new Error(`Missing required environment variable: ${name}`);
+  }
+  return value ?? "";
 }
 
-/**
- * Sends ETH from the treasury wallet to a destination address.
- * Assumes the treasury has already been funded by sweeps from user
- * deposit addresses (see scripts/sweep.ts for that job).
- */
-export async function sendEthFromTreasury(to: `0x${string}`, amountWei: bigint) {
-  const account = getTreasuryAccount();
-  const wallet = getWalletClientFor(account);
-  return wallet.sendTransaction({ to, value: amountWei });
+function getEnvNumber(name: string): number {
+  const value = getEnvValue(name);
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) {
+    throw new Error(`Environment variable ${name} must be a valid number`);
+  }
+  return parsed;
 }
 
-export async function sendUsdtFromTreasury(to: `0x${string}`, amountUnits: bigint) {
-  const account = getTreasuryAccount();
-  const wallet = getWalletClientFor(account);
-  return wallet.writeContract({
-    address: env.usdtAddress(),
-    abi: erc20Abi,
-    functionName: "transfer",
-    args: [to, amountUnits],
-  });
+function getEnvBigInt(name: string): bigint {
+  const value = getEnvValue(name);
+  try {
+    return BigInt(value);
+  } catch {
+    throw new Error(`Environment variable ${name} must be a valid integer string`);
+  }
 }
 
-export async function getTreasuryEthBalance() {
-  const client = getPublicClient();
-  return client.getBalance({ address: getTreasuryAccount().address });
+function getEnvList(name: string): string[] {
+  return getEnvValue(name, false)
+    .split(",")
+    .map((entry) => entry.trim().toLowerCase())
+    .filter(Boolean);
 }
+
+export const env = {
+  mongodbUri: () => getEnvValue("MONGODB_URI"),
+  rpcHttp: () => getEnvValue("RPC_URL_HTTP"),
+  usdtAddress: () => getEnvValue("USDT_CONTRACT_ADDRESS") as `0x${string}`,
+  masterMnemonic: () => getEnvValue("WALLET_MASTER_MNEMONIC"),
+  scannerCronSecret: () => getEnvValue("SCANNER_CRON_SECRET"),
+  mcpTransport: () => (getEnvValue("MCP_TRANSPORT", false) || "stdio") as "stdio" | "http",
+  mcpHttpPort: () => getEnvNumber("MCP_HTTP_PORT"),
+  mcpAuthToken: () => getEnvValue("MCP_AUTH_TOKEN", false),
+  mcpMaxWithdrawalWei: () => getEnvBigInt("MCP_MAX_WITHDRAWAL_WEI"),
+  mcpMaxWithdrawalUsdtUnits: () => getEnvBigInt("MCP_MAX_WITHDRAWAL_USDT_UNITS"),
+  mcpWithdrawalAllowlist: () => getEnvList("MCP_WITHDRAWAL_ALLOWLIST"),
+};

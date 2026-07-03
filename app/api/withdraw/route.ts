@@ -3,7 +3,7 @@ import { performWithdrawal, WithdrawalError } from "@/lib/wallet/withdraw";
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
-  const { userId, asset, amount, toAddress } = body || {};
+  const { userId, asset, amount, toAddress, chainId } = body || {};
 
   if (!userId || !["ETH", "USDT"].includes(asset)) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
@@ -20,7 +20,8 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const result = await performWithdrawal({ userId, asset, amount: amountBig, toAddress });
+    const cid = typeof chainId === "number" ? chainId : Number(chainId) || 1;
+    const result = await performWithdrawal({ userId, chainId: cid, asset, amount: amountBig, toAddress });
     return NextResponse.json({ ok: true, ...result });
   } catch (err) {
     if (err instanceof WithdrawalError) {

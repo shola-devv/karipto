@@ -1,35 +1,21 @@
-export const erc20Abi = [
-  {
-    type: "event",
-    name: "Transfer",
-    inputs: [
-      { name: "from", type: "address", indexed: true },
-      { name: "to", type: "address", indexed: true },
-      { name: "value", type: "uint256", indexed: false },
-    ],
-  },
-  {
-    type: "function",
-    name: "balanceOf",
-    stateMutability: "view",
-    inputs: [{ name: "account", type: "address" }],
-    outputs: [{ name: "", type: "uint256" }],
-  },
-  {
-    type: "function",
-    name: "transfer",
-    stateMutability: "nonpayable",
-    inputs: [
-      { name: "to", type: "address" },
-      { name: "value", type: "uint256" },
-    ],
-    outputs: [{ name: "", type: "bool" }],
-  },
-  {
-    type: "function",
-    name: "decimals",
-    stateMutability: "view",
-    inputs: [],
-    outputs: [{ name: "", type: "uint8" }],
-  },
-] as const;
+import { createPublicClient, createWalletClient, http } from "viem";
+import type { HDAccount } from "viem/accounts";
+import { CHAINS, getChainById } from "@/lib/chains";
+
+const publicClientCache = new Map<number, ReturnType<typeof createPublicClient>>();
+
+export function getPublicClient(chainId: number) {
+  const cached = publicClientCache.get(chainId);
+  if (cached) return cached;
+  const chain = getChainById(chainId) || CHAINS[0];
+  const rpc = process.env[chain.rpcEnvVar] || process.env.RPC_URL_HTTP;
+  const client = createPublicClient({ chain: chain.viemChain, transport: http(rpc) });
+  publicClientCache.set(chain.chainId, client as ReturnType<typeof createPublicClient>);
+  return client;
+}
+
+export function getWalletClientFor(account: HDAccount, chainId: number) {
+  const chain = getChainById(chainId) || CHAINS[0];
+  const rpc = process.env[chain.rpcEnvVar] || process.env.RPC_URL_HTTP;
+  return createWalletClient({ account, chain: chain.viemChain, transport: http(rpc) });
+}

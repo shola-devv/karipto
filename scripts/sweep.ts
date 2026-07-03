@@ -20,13 +20,16 @@ import { getWalletClientFor, getPublicClient } from "../lib/wallet/viemClients";
 import { getTreasuryAccount } from "../lib/wallet/treasury";
 import { erc20Abi } from "../lib/wallet/erc20";
 import { env } from "../lib/env";
+import { getChainByKey, getChainById } from "../lib/chains";
 
 const MIN_ETH_TO_SWEEP = 1_000_000_000_000_000n; // 0.001 ETH, avoid dust/uneconomical sweeps
 
 async function sweepUser(user: InstanceType<typeof User>) {
   const account = deriveAccountForIndex(user.derivationIndex);
-  const wallet = getWalletClientFor(account);
-  const client = getPublicClient();
+  const chainKey = process.env.SWEEP_CHAIN || "mainnet";
+  const chain = getChainByKey(chainKey) || getChainById(1)!;
+  const wallet = getWalletClientFor(account, chain.chainId);
+  const client = getPublicClient(chain.chainId);
   const treasury = getTreasuryAccount().address;
 
   const ethBalance = await client.getBalance({ address: account.address });
@@ -40,6 +43,7 @@ async function sweepUser(user: InstanceType<typeof User>) {
   if (usdtBalance > 0n) {
     // Requires this address to already hold enough ETH for gas (see note above).
     await wallet.writeContract({
+      chain: chain.viemChain,
       address: env.usdtAddress(),
       abi: erc20Abi,
       functionName: "transfer",
@@ -51,8 +55,8 @@ async function sweepUser(user: InstanceType<typeof User>) {
   if (ethBalance > MIN_ETH_TO_SWEEP) {
     const gasReserve = 21_000n * 30_000_000_000n; // rough reserve for a simple transfer
     const sendable = ethBalance - gasReserve;
-    if (sendable > 0n) {
-      await wallet.sendTransaction({ to: treasury, value: sendable });
+      if (sendable > 0n) {
+      await wallet.sendTransaction({ chain: chain.viemChain, to: treasury, value: sendable });
       console.log(`[sweep] moved ${sendable} wei from ${account.address}`);
     }
   }

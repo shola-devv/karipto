@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { runDepositScan } from "@/lib/wallet/deposits";
 import { env } from "@/lib/env";
+import { CHAINS, getChainByKey } from "@/lib/chains";
 
 // Call this from a scheduler (cron job, Vercel Cron, a queue worker, etc.)
 // on a tight interval (e.g. every 15-30s). It's safe to invoke concurrently.
@@ -11,7 +12,10 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const result = await runDepositScan();
+    const body = await req.json().catch(() => ({}));
+    const chainKey = (body.chain || "mainnet") as string;
+    const chain = getChainByKey(chainKey) || CHAINS[0];
+    const result = await runDepositScan(chain.chainId);
     return NextResponse.json({
       ok: true,
       scannedFrom: result.scannedFrom.toString(),

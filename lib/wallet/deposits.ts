@@ -1,4 +1,6 @@
 import { mnemonicToAccount, type HDAccount } from "viem/accounts";
+import { getPublicClient } from "./viemClients";
+import { getChainById } from "@/lib/chains";
 import { env } from "../env";
 
 /**
@@ -36,4 +38,17 @@ export function deriveAccountForIndex(index: number): HDAccount {
 
 export function deriveAddressForIndex(index: number): `0x${string}` {
   return deriveAccountForIndex(index).address;
+}
+
+export async function runDepositScan(chainId?: number) {
+  const cid = chainId || 1;
+  const chain = getChainById(cid);
+  const client = getPublicClient(cid);
+
+  // TODO: implement per-chain scanning logic. For now return minimal shape.
+  return {
+    scannedFrom: 0n,
+    scannedTo: 0n,
+    latest: 0n,
+  };
 }
