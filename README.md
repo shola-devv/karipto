@@ -128,14 +128,16 @@ scripts/
 
 ## Security
 
-This project custodies real assets once deployed with real funds — treat the checklist below as required reading, not optional polish, before it touches anything beyond test tokens:
+If you're deploying or contributing to this project with real assets in mind, treat the checklist below as required reading, not optional polish, before it touches anything beyond test tokens:
 
-- [ ] Move `WALLET_MASTER_MNEMONIC` out of plain environment variables and into a KMS/HSM (AWS KMS, GCP KMS, Vault, or a custody provider).
-- [ ] Add real user authentication and authorization on every route that reads or writes wallet data.
-- [ ] Rate-limit withdrawals and direct sends; consider manual review above a threshold.
-- [ ] Handle chain reorgs explicitly before crediting a deposit as final.
-- [ ] Monitor treasury liquidity and gas balances proactively.
-- [ ] Get an independent security review before handling real user funds.
+- Move `WALLET_MASTER_MNEMONIC` out of plain environment variables and into a KMS/HSM (AWS KMS, GCP KMS, Vault, or a custody provider).
+- Add real user authentication and authorization on every route that reads or writes wallet data.
+- Rate-limit withdrawals and direct sends; consider manual review above a threshold.
+- Handle chain reorgs explicitly before crediting a deposit as final.
+- Monitor treasury liquidity and gas balances proactively.
+- Get an independent security review before handling real user funds.
+
+If you're contributing a PR that touches `lib/wallet/`, please call out in the description which of these it affects, if any.
 
 ## Roadmap
 
