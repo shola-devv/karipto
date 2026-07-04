@@ -17,7 +17,26 @@ export default function BalanceCard({
   const eth = Number(formatEther(BigInt(ethBalanceWei || "0")));
   const usdt = Number(formatUnits(BigInt(usdtBalanceUnits || "0"), 6));
 
-  return  (
+  const assets = [
+    {
+      key: "eth",
+      label: "Ethereum",
+      symbol: "ETH",
+      value: eth,
+      decimals: 4,
+      logo: "/Ethereum-Blue-Logo-Vector-removebg-preview.png",
+    },
+    {
+      key: "usdt",
+      label: "Tether",
+      symbol: "USDT",
+      value: usdt,
+      decimals: 4,
+      logo: "/tether-logo.png",
+    },
+  ];
+
+  return (
     <div className="overflow-hidden rounded-lg border border-line bg-surface">
       {/* Header: network + live status, single source of truth for both */}
       <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3 sm:px-5">
