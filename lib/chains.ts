@@ -16,7 +16,7 @@ export const CHAINS: ChainConfig[] = [
     key: "mainnet",
     viemChain: mainnet,
     rpcEnvVar: "RPC_URL_HTTP_MAINNET",
-    usdtAddress: "0xdAC17F958D2ee523a2206206994597C13D831ec",
+    usdtAddress: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
     usdtDecimals: 6,
     confirmations: 12,
   },

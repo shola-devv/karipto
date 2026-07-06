@@ -17,7 +17,7 @@ export default function DepositCard({ address }: { address: string }) {
       <div className="flex items-center justify-between">
         <span className="text-xs uppercase tracking-wider text-muted">Your deposit address</span>
         <span className="rounded-sm bg-surface2 px-2 py-0.5 text-[10px] uppercase tracking-wider text-accent">
-          Ethereum mainnet
+          Ethereum address
         </span>
       </div>
 
@@ -34,8 +34,8 @@ export default function DepositCard({ address }: { address: string }) {
             {copied ? "Copied" : "Copy address"}
           </button>
           <p className="mt-3 text-xs text-muted">
-            Send ETH or USDT (ERC-20) here. Deposits credit after{" "}
-            <span className="text-text">12 confirmations</span>.
+            Send ETH or USDT (ERC-20) here. 
+            <span className="text-text"></span>.
           </p>
         </div>
       </div>
